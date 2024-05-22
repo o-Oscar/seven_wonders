@@ -48,8 +48,36 @@ def plot_ranking_pt_part(parties):
     plt.show()
 
 
+def to_dataframe(parties):
+    data = []
+    for i, partie in enumerate(parties):
+        for name, pts in partie.items():
+            data.append((i, name, pts))
+    return pd.DataFrame(data, columns=("game_id", "player", "points"))
+
+
+def plot_normalized_rank(parties):
+    parties = to_dataframe(parties)
+    parties["rank"] = parties.groupby("game_id")["points"].rank()
+    game_player_nb = parties.groupby("game_id")["points"].count()
+    parties["player_nb"] = parties["game_id"].map(game_player_nb)
+    parties["normalized_rank"] = (parties["rank"] - 0.5) / parties["player_nb"]
+
+    mean_normalized_rank = parties.groupby("player")["normalized_rank"].mean()
+    mean_normalized_rank = mean_normalized_rank.sort_values(ascending=False)
+
+    plt.bar(mean_normalized_rank.index, mean_normalized_rank.values)
+    plt.ylabel("normalized rank : (rank - 0.5) / player_nb")
+    plt.xticks(rotation="vertical")
+    plt.title("Normalized rank over all games")
+    plt.tight_layout()
+    plt.savefig("results/normalized_rank.png")
+    plt.show()
+
+
 if __name__ == "__main__":
     with open("data.json") as f:
         parties = json.load(f)
 
     plot_ranking_pt_part(parties)
+    plot_normalized_rank(parties)
