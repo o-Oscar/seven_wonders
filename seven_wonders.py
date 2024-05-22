@@ -43,6 +43,7 @@ def plot_ranking_pt_part(parties):
     plt.ylabel("points percentage per game")
     plt.xticks(rotation="vertical")
     plt.title("Avg points percentage per game")
+    plt.tight_layout()
     plt.savefig("results/avg_points_percentage_per_game.png")
     plt.show()
 
